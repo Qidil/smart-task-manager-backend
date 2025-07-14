@@ -62,3 +62,15 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.markAllComplete = async (req, res) => {
+  try {
+    await db.query(
+      "UPDATE tasks SET completed = true WHERE user_id = ?",
+      [req.user.id]
+    );    
+    res.json({ updated: true });    
+  } catch (err) {
+    res.status(500).json({ error: err.message });    
+  }
+};
