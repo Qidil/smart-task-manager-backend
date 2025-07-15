@@ -1,11 +1,25 @@
 const db = require("../config/db");
 
 exports.getTask = async (req, res) => {
+  const { completed, sort } = req.query;
+
+  let query = "SELECT * FROM tasks WHERE user_id = ?";
+  const params = [req.user.id];
+
+  if (completed === "true") {
+    query += " AND completed = true";
+  } else if (completed === "false") {
+    query += " AND completed = false";
+  }
+
+  if (sort === "deadline") {
+    query += " ORDER BY deadline ASC";
+  } else {
+    query += " ORDER BY created_at DESC";
+  }
+
   try {
-    const [tasks] = await db.query(
-      "SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC",
-      [req.user.id]
-    );
+    const [tasks] = await db.query(query, params);
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ error: err.message });
